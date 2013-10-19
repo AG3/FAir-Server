@@ -13,8 +13,10 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        serverbase.cpp
+        serverbase.cpp \
+    FTcpConnection.cpp
 
-HEADERS  += serverbase.h
+HEADERS  += serverbase.h \
+    FTcpConnection.h
 
 FORMS    += serverbase.ui
