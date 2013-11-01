@@ -1,0 +1,8 @@
+This document is to tell you what you should do.
+
+2013.11.1
+Now, I was pushed a new commit for you, it's add some annotation(Chinese), I hope you can follow these annotation, and finish it in a GOOD CODE STYLE!
+
+You should pull the "FAir" and the "FAir-Server" in same time, you can cpoy the download or upload code eachother, it's quite similar.
+
+Good luck!I hope you can finish this work and push a commit before 17th.
