@@ -23,6 +23,8 @@ void ServerBase::acceptConnection()  //接受连接
     connect(TcpBox[TCPnum]->connection,SIGNAL(readyRead()),TcpBox[TCPnum],SLOT(StartRecive()));
     connect(TcpBox[TCPnum]->connection,SIGNAL(error(QAbstractSocket::SocketError)),TcpBox[TCPnum],SLOT(displayError(QAbstractSocket::SocketError)));
     connect(TcpBox[TCPnum],SIGNAL(ConnectionReady()),TcpBox[TCPnum],SLOT(updateServerProgress()));
+    //在这里添加服务器上传文件的信号槽 然后在FTcpConnection里实现
+
     TCPnum++;
     ui->serverStatusLabel->setText(tr("接受连接"));
 }
