@@ -71,3 +71,9 @@ void FTcpConnection::displayError(QAbstractSocket::SocketError) //错误处理
 {
 
 }
+
+void FTcpConnection::connectionselected(QListWidgetItem *selected)
+{
+    QString t=selected->text();
+    int num=t.toInt();
+}

@@ -8,6 +8,7 @@ ServerBase::ServerBase(QWidget *parent) :
     ui->setupUi(this);
     TCPnum=0;
     connect(&tcpServer,SIGNAL(newConnection()),this,SLOT(acceptConnection()));
+    connect(ui->connectionlist,SIGNAL(itemActivated(QListWidgetItem*)),this,SLOT());
 }
 
 ServerBase::~ServerBase()
@@ -24,7 +25,7 @@ void ServerBase::acceptConnection()  //接受连接
     connect(TcpBox[TCPnum]->connection,SIGNAL(error(QAbstractSocket::SocketError)),TcpBox[TCPnum],SLOT(displayError(QAbstractSocket::SocketError)));
     connect(TcpBox[TCPnum],SIGNAL(ConnectionReady()),TcpBox[TCPnum],SLOT(updateServerProgress()));
     //在这里添加服务器上传文件的信号槽 然后在FTcpConnection里实现
-
+    ui->connectionlist->addItem(QString(TCPnum));
     TCPnum++;
     ui->serverStatusLabel->setText(tr("接受连接"));
 }
@@ -32,7 +33,7 @@ void ServerBase::acceptConnection()  //接受连接
 void ServerBase::on_startButton_clicked()
 {
     ui->startButton->setEnabled(false);
-    if(!tcpServer.listen(QHostAddress("127.0.0.1"),6666))
+    if(!tcpServer.listen(QHostAddress::Any,6666))
     {
         qDebug() << tcpServer.errorString();
         close();

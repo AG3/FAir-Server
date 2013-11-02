@@ -6,6 +6,7 @@
 #include"QFile"
 #include"QByteArray"
 #include"QDataStream"
+#include"QListWidgetItem"
 class FTcpConnection : public QObject
 {
     Q_OBJECT
@@ -26,7 +27,7 @@ public slots:
     void StartRecive();
     void updateServerProgress();  //更新进度条，接收数据
     void displayError(QAbstractSocket::SocketError socketError);
-
+    void connectionselected(QListWidgetItem*);
 };
 
 #endif // FTCPCONNECTION_H
