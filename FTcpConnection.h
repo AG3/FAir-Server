@@ -6,7 +6,8 @@
 #include"QFile"
 #include"QByteArray"
 #include"QDataStream"
-#include"QListWidgetItem"
+#include"QFileDialog"
+
 class FTcpConnection : public QObject
 {
     Q_OBJECT
@@ -20,14 +21,21 @@ public:
     QFile *localFile;   //本地文件
     QByteArray inBlock;   //数据缓冲区
 
-signals:
-    void ConnectionReady();
+    QFile *SendlocalFile;  //要发送的文件
+    qint64 SendtotalBytes;  //数据总大小
+    qint64 bytesWritten;  //已经发送数据大小
+    qint64 bytesToWrite;   //剩余数据大小
+    qint64 loadSize;   //每次发送数据的大小
+    QByteArray outBlock;  //数据缓冲区，即存放每次要发送的数据
+
+    //void updateClientProgress(qint64 numBytes);
+
 
 public slots:
-    void StartRecive();
     void updateServerProgress();  //更新进度条，接收数据
     void displayError(QAbstractSocket::SocketError socketError);
-    void connectionselected(QListWidgetItem*);
+    //void on_sendfile_clicked();
+    //void StartUpload(int num);
 };
 
 #endif // FTCPCONNECTION_H
