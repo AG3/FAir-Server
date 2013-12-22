@@ -22,12 +22,21 @@ void FTcpConnection::updateServerProgress()  //更新进度条，接收数据
             bytesReceived += sizeof(qint64) * 2;
         }
 
-        if((connection->bytesAvailable() >= fileNameSize)
-                && (fileNameSize != 0))
+        if((connection->bytesAvailable() >= fileNameSize)&& (fileNameSize != 0))
         {
             in >> fileName;
             bytesReceived += fileNameSize;
-            localFile = new QFile(fileName);
+            if(userID.isEmpty())
+            {
+                localFile = new QFile(fileName);
+            }
+            else
+            {
+                qDebug()<<"mkdir"<<userID;
+                QDir folder;
+                folder.mkdir(userID);
+                localFile = new QFile(userID+"/"+fileName);
+            }
             if(!localFile->open(QFile::WriteOnly))
             {
                 qDebug() << "open file error!";
@@ -53,6 +62,26 @@ void FTcpConnection::updateServerProgress()  //更新进度条，接收数据
         totalBytes = 0;
         bytesReceived = 0;
         fileNameSize = 0;
+
+        if(fileName=="userDiscern")
+        {
+            localFile = new QFile(fileName);
+            localFile->open(QIODevice::ReadWrite);
+            userID=localFile->readLine(64);
+            userID=userID.simplified();
+            localFile->remove();
+            localFile->close();
+            delete localFile;
+            qDebug()<<userID;
+        }
+        else if(fileName=="sync")
+        {
+            localFile = new QFile(userID+"/"+"fileListInfo");
+            if(!localFile->open(QIODevice::ReadOnly))
+            {
+
+            }
+        }
     }
 }
 
@@ -61,64 +90,42 @@ void FTcpConnection::displayError(QAbstractSocket::SocketError) //错误处理
 
 }
 
-/*void FTcpConnection::StartUpload(int num)  //实现文件大小等信息的发送
+void FTcpConnection::StartUpload(QString toSend)  //实现文件大小等信息的发送
 {
-    QString UfileName=QFileDialog::getOpenFileName(this);
-    SendlocalFile = new QFile(UfileName);
-    if(!SendlocalFile->open(QFile::ReadOnly))
+    SendlocalFile = new QFile(toSend);
+    if(!localFile->open(QFile::ReadOnly))
     {
         qDebug() << "open file error!";
         return;
     }
+    totalBytes = SendlocalFile->size();
 
-    FTcpConnection *tmpu;
-    QTcpSocket *uploadtcp=new QTcpSocket(this);
-
-    tmpu=qobject_cast<FTcpConnection*>(sender());
-    uploadtcp=
-
-    tmpu->SendtotalBytes = tmpu->SendlocalFile->size();
-
-    QDataStream sendOut(&tmpu->outBlock,QIODevice::WriteOnly);
+    QDataStream sendOut(&outBlock,QIODevice::WriteOnly);
     sendOut.setVersion(QDataStream::Qt_4_6);
-    QString currentFileName = UfileName.right(UfileName.size() - UfileName.lastIndexOf('/')-1);
+    QString currentFileName = toSend.right(toSend.size() - toSend.lastIndexOf('/')-1);
     sendOut << qint64(0) << qint64(0) << currentFileName;
 
-    tmpu->SendtotalBytes += tmpu->outBlock.size();
+    totalBytes += outBlock.size();
 
     sendOut.device()->seek(0);
-    sendOut<<tmpu->SendtotalBytes<<qint64((tmpu->outBlock.size() - sizeof(qint64)*2));
+    sendOut<<totalBytes<<qint64((outBlock.size() - sizeof(qint64)*2));
 
-    tmpu->bytesToWrite = tmpu->SendtotalBytes - tcpClient->write(tmpu->outBlock);
-
-    tmpu->outBlock.resize(0);
-}
-
-void FTcpConnection::updateClientProgress(qint64 numBytes) //更新进度条，实现文件的传送
-{
-    bytesWritten += (int)numBytes;
-
-    if(bytesToWrite > 0)
+    bytesWritten+=connection->write(outBlock);
+    //qDebug()<<totalBytes;
+    while(bytesWritten<totalBytes)
     {
-        outBlock = SendlocalFile->read(qMin(bytesToWrite,loadSize));
-        bytesToWrite -= (int)tcpClient->write(outBlock);
-        outBlock.resize(0);
-    }
-    else
-    {
-        SendlocalFile->close();
-    }
+        //qDebug()<<bytesWritten;
+        outBlock.clear();
+        outBlock = SendlocalFile->read(loadSize);
+        connection->write(outBlock);
+        bytesWritten += outBlock.size();
 
+    }
     if(bytesWritten == totalBytes) //发送完毕
     {
-        qDebug()<<"传送文件成功";
+        qDebug()<<"Send file success";
         SendlocalFile->close();
         delete SendlocalFile;
     }
+    outBlock.resize(0);
 }
-
-void FTcpConnection::on_sendfile_clicked()
-{
-    emit startTransfer();
-}
-*/
